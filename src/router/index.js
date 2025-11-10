@@ -1,25 +1,69 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import Login from '../views/Login.vue';
+import SubscriptionsList from '../components/SubscriptionsList.vue';
+import CreateUpdate from '../components/CreateUpdate.vue';
+import Register from '../views/Register.vue';
+
+import db from '../firebaseDb'; // ignore warning that 'db' is not used
+import { getAuth } from "firebase/auth";
+import auth from '../firebaseDb'
+
+import {createRouter, createWebHistory} from 'vue-router'
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
-  }
-]
+    {
+        path: '/',
+        name: 'Login',
+        component: Login,
+    },
+    {
+        path: '/register',
+        name: 'Register',
+        component: Register,
+    },
+    {
+        path: '/subscriptionsList',
+        name: 'SubscriptionsList',
+        component: SubscriptionsList,
+        meta: {
+            authRequired: true,
+        },
+    },
+    {
+        path: '/edit/:id',
+        name: 'edit',
+        component: CreateUpdate,
+        meta: {
+            authRequired: true,
+        },
+    },
+    {
+        path: '/create',
+        name: 'create',
+        component: CreateUpdate,
+        meta: {
+            authRequired: true,
+        },
+    },
+];
 
 const router = createRouter({
-  history: createWebHashHistory(),
-  routes
+    history: createWebHistory(process.env.BASE_URL),
+    routes
 })
 
-export default router
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.authRequired)) {
+        auth = getAuth();
+        if (auth.currentUser) {
+            next();
+        } else {
+            alert('You must be logged in to see this page');
+            next({
+                path: '/',
+            });
+        }
+    } else {
+        next();
+    }
+});
+export default router;
