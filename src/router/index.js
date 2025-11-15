@@ -5,9 +5,8 @@ import Register from '../views/Register.vue';
 
 import db from '../firebaseDb'; // ignore warning that 'db' is not used
 import { getAuth } from "firebase/auth";
-import auth from '../firebaseDb'
 
-import {createRouter, createWebHistory} from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     {
@@ -48,22 +47,22 @@ const routes = [
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),
-    routes
-})
+    routes,
+});
 
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.authRequired)) {
-        auth = getAuth();
+        const auth = getAuth();   // ✅ FIXED — correct initialization
+
         if (auth.currentUser) {
             next();
         } else {
             alert('You must be logged in to see this page');
-            next({
-                path: '/',
-            });
+            next({ path: '/' });
         }
     } else {
         next();
     }
 });
+
 export default router;
